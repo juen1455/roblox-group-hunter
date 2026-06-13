@@ -1,8 +1,25 @@
+const fs = require('fs');
+
+// Tu enlace de Discord configurado perfectamente
 const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1515199569686823113/eAtu7a0PbPN3xoIzhWB70wYdkUAxNSHyS1ZrylJRDSNnZ1Q-OcSrkuLRzebJrhYiJyNY"; 
 
-// Configuramos los IDs para el escaneo automático
-const ID_INICIAL = 5001700; 
-const ID_MAXIMO  = 5002500; // Un rango inicial para probar cómo avanza
+// Archivo local donde el bot recordará en qué ID se quedó
+const ARCHIVO_PROGRESO = 'ultimo_id.txt';
+const CANTIDAD_A_ESCANEAR = 1000; // Cuántos IDs revisará automáticamente en cada hora
+
+function obtenerUltimoId() {
+    if (fs.existsSync(ARCHIVO_PROGRESO)) {
+        const contenido = fs.readFileSync(ARCHIVO_PROGRESO, 'utf8');
+        const id = parseInt(contenido.trim());
+        if (!isNaN(id)) return id;
+    }
+    // Si el archivo no existe todavía, empieza desde tu número inicial preferido
+    return 5001700; 
+}
+
+function guardarUltimoId(id) {
+    fs.writeFileSync(ARCHIVO_PROGRESO, id.toString(), 'utf8');
+}
 
 async function verificarGrupo(id) {
     const url = `https://groups.roblox.com/v1/groups/${id}`;
@@ -44,13 +61,20 @@ async function enviarAlertaDiscord(id, nombre) {
 }
 
 async function iniciarEscaneo() {
-    console.log(`=== Iniciando escaneo de IDs desde ${ID_INICIAL} hasta ${ID_MAXIMO} ===`);
-    for (let id = ID_INICIAL; id <= ID_MAXIMO; id++) {
+    const idInicial = obtenerUltimoId();
+    const idFinal = idInicial + CANTIDAD_A_ESCANEAR;
+    
+    console.log(`=== Iniciando escaneo automático: Desde ${idInicial} hasta ${idFinal} ===`);
+    
+    for (let id = idInicial; id <= idFinal; id++) {
         await verificarGrupo(id);
         // Espera de 100 milisegundos para evitar que Roblox bloquee la IP rápido
         await new Promise(resolve => setTimeout(resolve, 100));
     }
-    console.log("=== Escaneo finalizado por hoy ===");
+    
+    // Guardamos el siguiente ID inicial para que la próxima hora continúe de largo al infinito
+    guardarUltimoId(idFinal + 1);
+    console.log(`=== Escaneo finalizado. Guardado para continuar en el ID: ${idFinal + 1} ===`);
 }
 
 iniciarEscaneo();
