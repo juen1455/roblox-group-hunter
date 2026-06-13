@@ -5,7 +5,7 @@ const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/151519956968682311
 
 // Archivo local donde el bot recordará en qué ID se quedó
 const ARCHIVO_PROGRESO = 'ultimo_id.txt';
-const CANTIDAD_A_ESCANEAR = 1000; // Cuántos IDs revisará automáticamente en cada hora
+const CANTIDAD_A_ESCANEAR = 10000; // Cuántos IDs revisará automáticamente en cada hora
 
 function obtenerUltimoId() {
     if (fs.existsSync(ARCHIVO_PROGRESO)) {
