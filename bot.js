@@ -63,6 +63,8 @@ async function enviarAlertaDiscord(id, nombre) {
 async function iniciarEscaneo() {
     const idInicial = obtenerUltimoId();
     const idFinal = idInicial + CANTIDAD_A_ESCANEAR;
+
+    await enviarAlertaDiscord(idInicial, "TEST DE CONEXIÓN - EL BOT ESTÁ VIVO");
     
     console.log(`=== Iniciando escaneo automático: Desde ${idInicial} hasta ${idFinal} ===`);
     
