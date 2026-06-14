@@ -2,22 +2,39 @@ name: Buscador Automatico de Grupos
 
 on:
   schedule:
-    # Se ejecutará automáticamente cada hora
+    # Se ejecuta automáticamente cada hora
     - cron: '0 * * * *'
   workflow_dispatch:
-    # Esto nos activa un botón para probarlo manualmente cuando queramos
+    # Te permite activar el bot manualmente con el botón "Run workflow"
 
 jobs:
   escanear:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Descargar codigo del repositorio
-        uses: actions/checkout@v4
+    - name: Descargar codigo del repositorio
+      uses: actions/checkout@v4
 
-      - name: Instalar Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
+    - name: Instalar Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
 
-      - name: Ejecutar Script Cazador
-        run: node bot.js
+    - name: Instalar dependencias
+      run: |
+        npm install
+
+    - name: Ejecutar Script Cazador
+      run: node bot.js
+      env:
+        # Aquí puedes colocar tus variables ocultas si usas Secrets (ej. el Webhook de Discord)
+        DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+
+    - name: Guardar progreso del ID
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add ultimo_id.txt
+        git commit -m "Actualizar ultimo_id [skip ci]" || echo "No hay cambios"
+        git push
+        
